@@ -16,65 +16,83 @@ class OrderController extends Controller
      * List all orders
      */
     
-    public function index()
-    {
-        return Order::with([
-            'retailer',
-            'confirmedBy',
-            'items.product'
-        ])->get();
-    }
+public function index()
+{
+    $orders = Order::with([
+        'retailer',
+        'items.product.images',
+        'items.product.primaryImage'
+    ])
+    ->where('retailer_id', auth()->id())
+    ->latest()
+    ->get();
+
+    return response()->json($orders);
+}
 
     /**
      * Create new order
      */
-    public function store(Request $request)
+   public function store(Request $request)
+{
+    $request->validate([
+        'items' => 'required|array|min:1',
+        'items.*.product_id' => 'required|exists:products,id',
+        'items.*.quantity' => 'required|integer|min:1',
+    ]);
 
-    {  
-     
-        $request->validate([
-            'items' => 'required|array|min:1',
-            'items.*.product_id' => 'required|exists:products,id',
-            'items.*.quantity' => 'required|integer|min:1',
+    $order = DB::transaction(function () use ($request) {
+
+        $subtotal = 0;
+
+        $order = Order::create([
+
+            'order_number' => 'ORD-' . time(),
+            'retailer_id' => auth()->id(),
+            'status' => 'pending',
+            'subtotal' => 0,
+            'discount' => 0,
+            'delivery_fee' => 0,
+            'total' => 0,
         ]);
 
-        DB::transaction(function () use ($request, &$order) {
+        foreach ($request->items as $item) {
 
-            $totalPrice = 0;
+            $product = Product::findOrFail($item['product_id']);
 
-            $order = Order::create([
-                'retailer_id' => auth()->id(),
-                'status' => 'pending',
-                'total_price' => 0,
+            $lineSubtotal = $product->price * $item['quantity'];
+
+            OrderItem::create([
+                'order_id' => $order->id,
+                'product_id' => $product->id,
+                'quantity' => $item['quantity'],
+                'price' => $product->price,
+                'subtotal' => $lineSubtotal,
             ]);
 
-            foreach ($request->items as $item) {
+            $subtotal += $lineSubtotal;
+        }
 
-                $product = Product::findOrFail($item['product_id']);
+        $deliveryFee = $subtotal * 0.05; // 5%
+        $discount = 0;
 
-                $subtotal = $product->price * $item['quantity'];
+        $total = $subtotal + $deliveryFee - $discount;
 
-                OrderItem::create([
-                    'order_id' => $order->id,
-                    'product_id' => $product->id,
-                    'quantity' => $item['quantity'],
-                    'price' => $product->price,
-                    'subtotal' => $subtotal,
-                ]);
+        $order->update([
+            'subtotal' => $subtotal,
+            'delivery_fee' => $deliveryFee,
+            'discount' => $discount,
+            'total' => $total,
+        ]);
 
-                $totalPrice += $subtotal;
-            }
+        return $order;
+    });
 
-            $order->update([
-                'total_price' => $totalPrice,
-            ]);
-        });
-
-        return response()->json([
-            'message' => 'Order created successfully',
-            'order' => $order->load('items.product')
-        ], 201);
-    }
+    return response()->json([
+        'message' => 'Order created successfully',
+        'order' => $order->load('items.product')
+    ], 201);
+}
 
     /**
      * Show single order

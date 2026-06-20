@@ -26,7 +26,7 @@ class RetailerController extends Controller
     public function show(Request $request)
     {
         $user = $request->user();
-          
+        
         if (!$user->isRetailer()) {
             return response()->json(['message' => 'Unauthorized'], 403);
         }
@@ -48,6 +48,8 @@ class RetailerController extends Controller
     public function update(Request $request)
     {
         $user = $request->user();
+       //  dd($user);
+
         if (!$user->isRetailer()) {
             return response()->json(['message' => 'Unauthorized'], 403);
         }

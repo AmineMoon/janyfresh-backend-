@@ -19,7 +19,7 @@ class ProductController extends Controller
             $query->where('name', 'like', '%' . $request->search . '%');
         }
 
-        $products = $query->latest()->paginate(5);
+        $products = $query->latest()->paginate(10);
 
         // Fix image URLs
         $products->getCollection()->transform(function ($product) {

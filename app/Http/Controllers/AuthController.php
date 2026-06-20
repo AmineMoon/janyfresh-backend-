@@ -12,7 +12,8 @@ class AuthController extends Controller
 {
     
 public function registerRetailer(Request $request)
-{
+{ 
+
     // 1. VALIDATION
     $validated = $request->validate([
         'name' => 'required|string|max:255',
@@ -22,7 +23,7 @@ public function registerRetailer(Request $request)
         'shop_name' => 'nullable|string|max:255',
         'address' => 'nullable|string',
         'city' => 'nullable|string',
-        'image' => 'nullable|image|max:2048',
+        'image' => 'nullable|image|max:3200',
         'age' => 'nullable|integer',
     ]);
 
@@ -51,10 +52,10 @@ public function registerRetailer(Request $request)
         'image' => $imagePath,
         'age' => $validated['age'] ?? null,
     ]);
-
+ 
     // 5. CREATE TOKEN IMMEDIATELY
     $token = $user->createToken('retailer-token')->plainTextToken;
-
+   
     // 6. RESPONSE
     return response()->json([
         'message' => 'Retailer registered successfully',
@@ -64,6 +65,7 @@ public function registerRetailer(Request $request)
             'name' => $user->name,
             'email' => $user->email,
             'role' => $user->role,
+            'role' => $user->retailer,
         ]
     ], 201);
 }

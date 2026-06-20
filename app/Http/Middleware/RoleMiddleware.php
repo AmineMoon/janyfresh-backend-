@@ -10,6 +10,8 @@ class RoleMiddleware
     public function handle(Request $request, Closure $next, ...$roles)
     {
         $user = $request->user();
+        
+          
 
         if (!$user) {
             return response()->json([
@@ -23,10 +25,7 @@ class RoleMiddleware
             ], 403);
         }
 
-      /*   dd([
-    'user_role' => $user->role,
-    'allowed_roles' => $roles,
-]); */
+    
         if (!in_array($user->role, $roles)) {
             return response()->json([
                 'message' => 'Forbidden: insufficient role'
