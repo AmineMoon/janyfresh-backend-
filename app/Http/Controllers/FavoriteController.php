@@ -2,7 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Favorite;
+use App\Models\Favorites;
+use App\Models\Product;
 use Illuminate\Http\Request;
 
 class FavoriteController extends Controller
@@ -13,16 +14,27 @@ class FavoriteController extends Controller
     |--------------------------------------------------------------------------
     */
 
-    public function index(Request $request)
-    {
-        $retailer = $request->user()->retailer;
 
-        $favorites = Favorite::with('product')
-            ->where('retailer_id', $retailer->id)
-            ->get();
+    
+ public function index(Request $request)
+{
+    $retailer = $request->user()->retailer;
 
-        return response()->json($favorites);
-    }
+    $products = Product::with([
+        'category',
+        'subcategory',
+        'images',
+        'primaryImage',
+    ])
+    ->whereHas('favorites', function ($query) use ($retailer) {
+        $query->where('retailer_id', $retailer->id);
+    })
+    ->get();
+
+    return response()->json($products);
+}
+
+
 
     /*
     |--------------------------------------------------------------------------
