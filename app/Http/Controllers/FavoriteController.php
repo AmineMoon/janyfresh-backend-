@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Favorites;
+use App\Models\Favorite;
 use App\Models\Product;
 use Illuminate\Http\Request;
 
@@ -15,10 +15,23 @@ class FavoriteController extends Controller
     */
 
 
-    
  public function index(Request $request)
 {
-    $retailer = $request->user()->retailer;
+    $user = $request->user();
+
+    if (!$user) {
+        return response()->json([
+            'message' => 'Unauthenticated'
+        ], 401);
+    }
+
+    $retailer = $user->retailer;
+
+    if (!$retailer) {
+        return response()->json([
+            'message' => 'Retailer not found for this user'
+        ], 400);
+    }
 
     $products = Product::with([
         'category',
@@ -35,12 +48,12 @@ class FavoriteController extends Controller
 }
 
 
-
     /*
     |--------------------------------------------------------------------------
     | Add product to favorites
     |--------------------------------------------------------------------------
     */
+
 
     public function store(Request $request)
     {
@@ -61,33 +74,24 @@ class FavoriteController extends Controller
         ], 201);
     }
 
+
     /*
     |--------------------------------------------------------------------------
     | Remove favorite
     |--------------------------------------------------------------------------
     */
+public function destroy(Request $request, $productId)
+{
+    $retailer = $request->user()->retailer;
 
-    public function destroy(Request $request, Favorite $favorite)
-    {
-        $retailer = $request->user()->retailer;
+    $favorite = Favorite::where('product_id', $productId)
+        ->where('retailer_id', $retailer->id)
+        ->firstOrFail();
 
-        /*
-        |--------------------------------------------------------------------------
-        | Security Check
-        |--------------------------------------------------------------------------
-        */
+    $favorite->delete();
 
-        if ($favorite->retailer_id !== $retailer->id) {
-
-            return response()->json([
-                'message' => 'Forbidden'
-            ], 403);
-        }
-
-        $favorite->delete();
-
-        return response()->json([
-            'message' => 'Favorite removed successfully'
-        ]);
-    }
+    return response()->json([
+        'message' => 'Favorite removed successfully'
+    ]);
+}
 }
