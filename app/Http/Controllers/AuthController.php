@@ -17,14 +17,16 @@ public function registerRetailer(Request $request)
     // 1. VALIDATION
     $validated = $request->validate([
         'name' => 'required|string|max:255',
+        'phone' => 'nullable|string|max:10',
         'email' => 'required|email|unique:users,email',
         'password' => 'required|string|min:6',
-        'phone' => 'nullable|string|max:10',
+        
+        /*
         'shop_name' => 'nullable|string|max:255',
         'address' => 'nullable|string',
         'city' => 'nullable|string',
         'image' => 'nullable|image|max:3200',
-        'age' => 'nullable|integer',
+        'age' => 'nullable|integer',*/
     ]);
 
     // 2. CREATE USER

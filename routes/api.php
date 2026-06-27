@@ -22,6 +22,8 @@ use App\Http\Controllers\FavoriteController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\BoxRentalController;
 
+ use App\Http\Controllers\CategoryController;
+ use App\Http\Controllers\SubcategoryController;
 
 
 
@@ -142,6 +144,12 @@ Route::middleware('auth:sanctum')->group(function () {
 
 
 
+
+
+
+
+    
+
     /*
     |--------------------------------------------------------------------------
     | Admin Routes
@@ -157,7 +165,7 @@ Route::middleware('auth:sanctum')->group(function () {
         */
 
         Route::apiResource('admins', AdminController::class);
-
+        
         Route::apiResource('retailers', RetailerController::class);
 
         Route::post('/register/driver', [AuthController::class, 'registerDriver']);
@@ -204,6 +212,21 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::apiResource('payments', PaymentController::class);
     });
 
+
+
+    
+        /*
+        |--------------------------------------------------------------------------
+        | category
+        |--------------------------------------------------------------------------
+        */
+  
+
+        Route::apiResource('categories', CategoryController::class);
+        Route::apiResource('subcategories', SubcategoryController::class);
+
+
+
      /*
         |--------------------------------------------------------------------------
         | Renting
@@ -217,7 +240,10 @@ Route::middleware('auth:sanctum')->group(function () {
 
 
 
-           
+
+
+
+
 
     /*
     |--------------------------------------------------------------------------
@@ -225,7 +251,7 @@ Route::middleware('auth:sanctum')->group(function () {
     |--------------------------------------------------------------------------
     */
 
-    Route::middleware('role:driver')->group(function () {
+      Route::middleware('role:driver')->group(function () {
 
         /*
         |--------------------------------------------------------------------------

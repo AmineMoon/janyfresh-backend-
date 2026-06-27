@@ -21,6 +21,8 @@ class ProductController extends Controller
 
         $products = $query->latest()->paginate(10);
 
+
+        
         // Fix image URLs
         $products->getCollection()->transform(function ($product) {
 
