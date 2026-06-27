@@ -83,21 +83,37 @@ class RetailerController extends Controller
         if (isset($validated['age'])) $retailer->age = $validated['age'];
 
         // Handle image upload
-        if ($request->hasFile('image')) {
+      /*  if ($request->hasFile('image')) {
             // Delete old image if exists
             if ($retailer->image) {
                 Storage::disk('public')->delete($retailer->image);
             }
             $retailer->image = $request->file('image')->store('retailers', 'public');
-        }
+        } $retailer->save();
+         
+        */
 
-        $retailer->save();
+
+
+     // Handle image upload (USER table, not retailer)
+        if ($request->hasFile('image')) {
+
+      // Delete old image if exists
+       if ($user->image) {
+        Storage::disk('public')->delete($user->image);
+       }
+
+    $user->image = $request->file('image')->store('users', 'public');
+     $user->save();
+}
+       
 
         return response()->json([
             'success' => true,
             'message' => 'Retailer account updated successfully',
             'data' => [
                 'user' => $user,
+                'image_url' => $user->image ? asset('storage/' . $user->image) : null,
                 'retailer' => $retailer
             ]
         ]);

@@ -35,9 +35,12 @@ return new class extends Migration
             $table->string('vehicle_type')
                 ->nullable();
 
+
             $table->string('license_number')
                 ->nullable()
                 ->unique();
+
+           $table->decimal('rating', 8, 2)->nullable();
 
             /*
             |--------------------------------------------------------------------------
@@ -56,6 +59,9 @@ return new class extends Migration
 
             $table->string('current_location')
                 ->nullable();
+
+    
+
 
             $table->timestamps();
         });

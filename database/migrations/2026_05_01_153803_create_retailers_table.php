@@ -40,9 +40,6 @@ return new class extends Migration
             $table->string('city')
                 ->nullable();
 
-            $table->string('image')
-                ->nullable();
-
             /*
             |--------------------------------------------------------------------------
             | Extra Data

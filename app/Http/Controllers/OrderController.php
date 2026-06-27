@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Order;
+use App\Models\Retailer;
 use App\Models\OrderItem;
 use App\Models\Product;
 use Illuminate\Http\Request;
@@ -15,6 +16,7 @@ class OrderController extends Controller
     /**
      * List all orders
      */
+
     
 public function index()
 {
@@ -168,6 +170,38 @@ public function confirm(Order $order)
         'order' => $order->fresh()
     ]);
 }
+
+
+
+
+ public function status()
+{
+    $stats = Order::selectRaw("
+            COUNT(*) AS total_orders,
+            SUM(CASE WHEN status = 'pending' THEN 1 ELSE 0 END) AS pending_orders,
+            SUM(CASE WHEN status = 'confirmed' THEN 1 ELSE 0 END) AS confirmed_orders,
+            COUNT(DISTINCT retailer_id) AS total_retailers
+        ")
+        ->first();
+
+    return response()->json($stats);
+}
+
+
+
+
+     public function order_info()
+  {
+   $retailers = Retailer::with([
+    'orders.items.product.images',
+    'orders.items.product.primaryImage'
+])->get();
+
+return response()->json($retailers);
+}
+
+
+
 
 
 }

@@ -265,6 +265,18 @@ Route::middleware('auth:sanctum')->group(function () {
 
 
 
+            /*
+        |--------------------------------------------------------------------------
+        |  Orders 
+        |--------------------------------------------------------------------------
+        */
+       
+        Route::get('/driver/status', [OrderController::class, 'status']);
+        Route::get('/driver/order_info', [OrderController::class, 'order_info']);
+        Route::get('/driver/orders/{order}', [OrderController::class, 'show']);
+
+    
+
         /*
         |--------------------------------------------------------------------------
         | Assigned Deliveries
